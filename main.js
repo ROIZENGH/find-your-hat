@@ -11,6 +11,7 @@ class Field {
     this._fieldHeight=field.length;
     this._fieldWidth=field[0].length;
     this._currentPosition = [0,0];
+    this._nextPosition = [0,0];
   };
     get fieldHeight(){
       return this._fieldHeight;
@@ -20,6 +21,9 @@ class Field {
     };
     get currentPosition(){
       return this._currentPosition;
+    }
+    get nextPosition(){
+        return this._nextPosition;
     }
     print(){
     let fieldPrint=[];
@@ -32,10 +36,10 @@ class Field {
 }
 
 const myField = new Field([
-  ['*', '░', 'O'],
-  ['░', 'O', '░'],
-  ['░', 'O', '░'],
-  ['░', '^', '░'],
+  ['*', '░', '░', '░', 'O'],
+  ['░', '░', '░', 'O', '░'],
+  ['░', '░', '░', 'O', '░'],
+  ['░', '░', '░', '^', '░'],
 ]);
 
 console.log(myField.fieldHeight);
@@ -46,51 +50,50 @@ myField.print();
 
 let endGame = false;
 while(!endGame){
-  let move = prompt("Which direction do you wish to go?");
-  move = move.toLowerCase();
-  if(move === "u"){
-    if((myField._currentPosition[0]-1) < 0){
-      console.log("You moved out of Bounds! You just lost :'(");
-      endGame = true;
-      break;
+    let move = prompt("Which direction do you wish to go?");
+    move = move.toLowerCase();
+  
+    switch (move) {
+        case "u":
+            myField._nextPosition[0] = myField.currentPosition[0] - 1;
+            break;
+        case "d":
+            myField._nextPosition[0] = myField.currentPosition[0] + 1;
+            break;
+        case "l":
+            myField._nextPosition[1] = myField.currentPosition[1] - 1;
+            break;
+        case "r":
+            myField._nextPosition[1] = myField.currentPosition[1] + 1;
+            break;
+        default: 
+        console.log("Please enter a valid direction (U,D,L or R)");
     }
-    else{
-      myField._currentPosition[0] = myField._currentPosition[0] - 1;
-      myField._field[myField._currentPosition[0]][myField._currentPosition[1]] = "*";
+
+    if(myField.nextPosition[0]<0 || myField.nextPosition[0]>myField.fieldHeight-1 || myField.nextPosition[1] < 0 || myField.nextPosition[1] > myField.fieldWidth-1){
+        console.log("You moved out of Bounds! You just lost :'(");
+        endGame = true;
+        break;
+    }
+
+    if(myField._field[myField.nextPosition[0]][myField.nextPosition[1]] === hole){
+        console.log("You fell into a hole! You just lost :'(");
+        endGame = true;
+        break;
+    }
+    else if(myField._field[myField.nextPosition[0]][myField.nextPosition[1]] === hat){
+        console.log("You reached the goal! You just won!! :)");
+        endGame = true;
+        break;
+    }
+    else if(myField._field[myField.nextPosition[0]][myField.nextPosition[1]] === pathCharacter){
+        console.log("You can't go back the same path. You just lost :'(");
+        endGame = true;
+        break;
+    }
+    else if(myField._field[myField.nextPosition[0]][myField.nextPosition[1]] === fieldCharacter){
+        myField._currentPosition = myField._nextPosition;
+        myField._field[myField._currentPosition[0]][myField._currentPosition[1]] = pathCharacter;
     }
     myField.print();
   }
-  if(move === "d"){
-    if((myField._currentPosition[0]+1) > (myField.fieldHeight-1)){
-      console.log("You moved out of Bounds! You just lost :'(");
-      endGame = true;
-      break;
-    }
-    myField._currentPosition[0] = myField._currentPosition[0] + 1;
-    myField._field[myField._currentPosition[0]][myField._currentPosition[1]] = "*";
-    myField.print();
-  }
-  if(move === "r"){
-    if((myField._currentPosition[1]+1) > (myField.fieldWidth-1)){
-      console.log("You moved out of Bounds! You just lost :'(");
-      endGame = true;
-      break;
-    }
-    myField._currentPosition[1] = myField._currentPosition[1] + 1;
-    myField._field[myField._currentPosition[0]][myField._currentPosition[1]] = "*";
-    myField.print();
-  }
-  if(move === "l"){
-    if((myField._currentPosition[1]-1) < 0){
-      console.log("You moved out of Bounds! You just lost :'(");
-      endGame = true;
-      break;
-    }
-    myField._currentPosition[1] = myField._currentPosition[1] - 1;
-    myField._field[myField._currentPosition[0]][myField._currentPosition[1]] = "*";
-    myField.print();
-  }
-  if(move === "x"){
-    endGame = true;
-  }
-}
